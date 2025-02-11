@@ -18,7 +18,7 @@ import (
 // Default target is set to binary.
 //
 //goland:noinspection GoUnusedGlobalVariable
-var Default = magetasks.Build // nolint:deadcode,gochecknoglobals
+var Default = magetasks.Build //nolint:deadcode,gochecknoglobals
 
 func init() { //nolint:gochecknoinits
 	bin := artifact.Binary{

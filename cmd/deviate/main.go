@@ -1,16 +1,10 @@
 package main
 
 import (
-	"os"
-
 	"github.com/openshift-knative/deviate/internal/cmd"
-)
-
-var (
-	exitFunc = os.Exit    //nolint:gochecknoglobals
-	opts     []cmd.Option //nolint:gochecknoglobals
+	"github.com/wavesoftware/go-commandline"
 )
 
 func main() {
-	exitFunc(cmd.Main(opts...))
+	commandline.New(new(cmd.App)).ExecuteOrDie(cmd.Options...)
 }
