@@ -18,15 +18,16 @@ type Operation struct {
 }
 
 func (o Operation) Run() error {
-	err := runSteps([]step{
+	if err := runSteps([]step{
 		o.mirrorReleases,
 		o.syncTags,
 		o.syncReleaseNext,
 		o.triggerCI,
 		o.createSyncReleaseNextPR,
-	})
-	_ = o.switchToMain()
-	return err
+	}); err != nil {
+		return err
+	}
+	return o.switchToMain()
 }
 
 func (o Operation) switchToMain() error {

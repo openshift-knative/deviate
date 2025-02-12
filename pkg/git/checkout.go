@@ -35,23 +35,23 @@ type onGoingCheckout struct {
 }
 
 func (o onGoingCheckout) As(branch string) error {
+	var (
+		err   error
+		hash  *plumbing.Hash
+		wt    *gitv5.Worktree
+		exist bool
+	)
 	repo := o.repo.Repository
-	err := o.repo.Fetch(o.remote)
-	if err != nil {
+	if err = o.repo.Fetch(o.remote); err != nil {
 		return errors.Wrap(err, ErrRemoteOperationFailed)
 	}
-	var hash *plumbing.Hash
-	hash, err = repo.ResolveRevision(o.revision())
-	if err != nil {
+	if hash, err = repo.ResolveRevision(o.revision()); err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
-	wt, err := repo.Worktree()
-	if err != nil {
+	if wt, err = repo.Worktree(); err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
-	var exist bool
-	exist, err = o.branchExists(branch)
-	if err != nil {
+	if exist, err = o.branchExists(branch); err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
 	coOpts := &gitv5.CheckoutOptions{
@@ -61,24 +61,29 @@ func (o onGoingCheckout) As(branch string) error {
 		coOpts.Create = true
 		coOpts.Hash = *hash
 
-		err = repo.CreateBranch(&config.Branch{
+		if err = repo.CreateBranch(&config.Branch{
 			Name:   branch,
 			Remote: o.remote.Name,
 			Merge:  plumbing.NewBranchReferenceName(branch),
-		})
-		if err != nil {
+		}); err != nil {
 			return errors.Wrap(err, ErrLocalOperationFailed)
 		}
 	}
-	err = wt.Checkout(coOpts)
-	if err != nil {
+
+	if err = wt.Checkout(coOpts); err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
 
-	return errors.Wrap(wt.Reset(&gitv5.ResetOptions{
+	if err = wt.Reset(&gitv5.ResetOptions{
 		Commit: *hash,
 		Mode:   gitv5.HardReset,
-	}), ErrLocalOperationFailed)
+	}); err != nil {
+		return errors.Wrap(err, ErrLocalOperationFailed)
+	}
+	if err = wt.Clean(&gitv5.CleanOptions{Dir: true}); err != nil {
+		return errors.Wrap(err, ErrLocalOperationFailed)
+	}
+	return nil
 }
 
 func (o onGoingCheckout) OntoWorkspace() error {
@@ -177,5 +182,5 @@ func (o onGoingCheckout) branchExists(branch string) (bool, error) {
 }
 
 func (o onGoingCheckout) revision() plumbing.Revision {
-	return plumbing.Revision(fmt.Sprintf("%s/%s", o.remote.Name, o.branch))
+	return plumbing.Revision(fmt.Sprintf("refs/remotes/%s/%s", o.remote.Name, o.branch))
 }

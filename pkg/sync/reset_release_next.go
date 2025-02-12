@@ -12,7 +12,10 @@ func (o Operation) resetReleaseNext() error {
 		Name: "upstream",
 		URL:  o.Config.Upstream,
 	}
-	err := o.Repository.Checkout(remote, o.Config.Branches.Main).
-		As(o.Config.Branches.ReleaseNext)
-	return errors.Wrap(err, ErrSyncFailed)
+	if err := o.Repository.Checkout(remote, o.Config.Branches.Main).
+		As(o.Config.Branches.ReleaseNext); err != nil {
+		return errors.Wrap(err, ErrSyncFailed)
+	}
+
+	return nil
 }

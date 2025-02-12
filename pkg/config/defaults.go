@@ -25,7 +25,7 @@ func newDefaults() Config {
 			RefSpec: "v*",
 		},
 		ResyncReleases: ResyncReleases{
-			NumberOf: 6, //nolint:gomnd
+			NumberOf: 6, //nolint:mnd
 		},
 		Messages: Messages{
 			TriggerCI: ":robot: Synchronize branch `%s` to " +
@@ -33,7 +33,8 @@ func newDefaults() Config {
 			TriggerCIBody: "This automated PR is to make sure the " +
 				"forked project's `%s` branch (forked upstream's `%s` branch) passes" +
 				" a CI.",
-			ApplyForkFiles: ":open_file_folder: Apply fork specific files",
+			ApplyForkFiles:  ":open_file_folder: Apply fork specific files",
+			ImagesGenerated: ":vhs: Images generated",
 		},
 		SyncLabels: []string{"kind/sync-fork-to-upstream"},
 	}

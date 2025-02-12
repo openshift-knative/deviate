@@ -27,9 +27,10 @@ type Tags struct {
 
 // Messages holds messages that are used to commit changes and create PRs.
 type Messages struct {
-	TriggerCI      string `valid:"required" yaml:"triggerCi"`
-	TriggerCIBody  string `valid:"required" yaml:"triggerCiBody"`
-	ApplyForkFiles string `valid:"required" yaml:"applyForkFiles"`
+	TriggerCI       string `valid:"required" yaml:"triggerCi"`
+	TriggerCIBody   string `valid:"required" yaml:"triggerCiBody"`
+	ApplyForkFiles  string `valid:"required" yaml:"applyForkFiles"`
+	ImagesGenerated string `valid:"required" yaml:"imagesGenerated"`
 }
 
 // Branches holds configuration for branches.
