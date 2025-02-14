@@ -1,6 +1,6 @@
 module github.com/openshift-knative/deviate/build
 
-go 1.22.7
+go 1.22.9
 
 require (
 	github.com/openshift-knative/deviate v0.0.0
