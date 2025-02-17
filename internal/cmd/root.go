@@ -9,10 +9,10 @@ import (
 	"github.com/wavesoftware/go-commandline"
 )
 
-// Options hold the overrides for regular execution of main cobra.Command
+// Options hold the overrides for regular execution of main cobra.Command.
 var Options = make([]commandline.Option, 0, 1) //nolint:gochecknoglobals
 
-// App is the main application
+// App is the main application.
 type App struct{}
 
 func (a App) Command() *cobra.Command {

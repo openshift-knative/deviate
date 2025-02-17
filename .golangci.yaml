@@ -3,6 +3,7 @@ run:
   build-tags:
     - e2e
     - mage
+    - ignored
 
 linters:
   disable-all: false
@@ -18,31 +19,25 @@ linters:
   disable:
     - paralleltest
     - nlreturn
-    - exhaustivestruct
     - wsl
     - godox
-    - scopelint
-    - maligned
-    - interfacer
-    - golint
+    - ireturn
+    - varnamelen
     - exhaustruct
-    - containedctx
     - depguard
+    - containedctx # TODO: consider removing this
 
 issues:
   exclude-rules:
     - path: _test\.go
       linters:
         - wrapcheck
-        - varnamelen
 
 linters-settings:
-  varnamelen:
-    max-distance: 16
-    min-name-length: 2
-
+  wrapcheck:
+    ignorePackageGlobs:
+      - github.com/openshift-knative/hack/*
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
     replace-allow-list:
-      # FIXME: until github.com/cli/cli requires forked github.com/cli/shurcooL-graphql
-      - github.com/shurcooL/graphql
+      - github.com/openshift-knative/hack

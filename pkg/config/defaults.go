@@ -25,7 +25,7 @@ func newDefaults() Config {
 			RefSpec: "v*",
 		},
 		ResyncReleases: ResyncReleases{
-			NumberOf: 6, //nolint:mnd
+			NumberOf: 6, //nolint:gomnd
 		},
 		Messages: Messages{
 			TriggerCI: ":robot: Synchronize branch `%s` to " +
