@@ -5,14 +5,14 @@ import (
 	"github.com/openshift-knative/deviate/pkg/errors"
 )
 
-func (o Operation) addForkFiles() error {
-	return runSteps([]step{
+func (o Operation) addForkFiles(rel release) step {
+	return multiStep([]step{
 		o.removeGithubWorkflows,
 		o.unpackForkOntoWorkspace,
 		o.commitChanges(o.Config.Messages.ApplyForkFiles),
-		o.generateImages,
+		o.generateImages(rel),
 		o.commitChanges(o.Config.Messages.ImagesGenerated),
-	})
+	}).runSteps
 }
 
 func (o Operation) unpackForkOntoWorkspace() error {

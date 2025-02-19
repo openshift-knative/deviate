@@ -10,16 +10,13 @@ require (
 	github.com/go-git/go-git/v5 v5.13.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/openshift-knative/hack v0.0.0-20250214121513-a12678327b21
+	github.com/openshift-knative/hack v0.0.0-20250219100451-e447f6ba15c8
 	github.com/spf13/cobra v1.8.1
 	github.com/wavesoftware/go-commandline v1.3.0
 	github.com/xanzy/ssh-agent v0.3.3
-	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.1
+	sigs.k8s.io/yaml v1.4.0
 )
-
-// TODO: remove after https://github.com/openshift-knative/hack/pull/585 is merged
-replace github.com/openshift-knative/hack => github.com/cardil/openshift-knative-hack v0.0.0-20250214152308-4db5dfd1f6b6
 
 require (
 	cloud.google.com/go v0.113.0 // indirect
@@ -191,6 +188,7 @@ require (
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/muhammadmuzzammil1998/jsonc v0.0.0-20201229145248-615b0916ca38 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/octago/sflags v0.3.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -285,6 +283,7 @@ require (
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.31.0 // indirect
 	k8s.io/apimachinery v0.31.0 // indirect
 	k8s.io/client-go v0.31.0 // indirect
@@ -296,5 +295,4 @@ require (
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/prow v0.0.0-20240910125013-1e9790f40f9f // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
-	sigs.k8s.io/yaml v1.4.0 // indirect
 )

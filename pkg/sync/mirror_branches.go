@@ -36,15 +36,22 @@ func (o Operation) mirrorReleases() error {
 	return o.resyncReleases(missing)
 }
 
-type release struct {
+type release interface {
+	String() string
+	Name(tpl string) (string, error)
+	less(o release) bool
+	Tag() string
+}
+
+type stdRelease struct {
 	Major, Minor int
 }
 
-func (r release) String() string {
+func (r stdRelease) String() string {
 	return strconv.Itoa(r.Major) + "." + strconv.Itoa(r.Minor)
 }
 
-func (r release) Name(tpl string) (string, error) {
+func (r stdRelease) Name(tpl string) (string, error) {
 	eng, err := template.New("release").Parse(tpl)
 	if err != nil {
 		return "", errors.Wrap(err, ErrSyncFailed)
@@ -57,8 +64,15 @@ func (r release) Name(tpl string) (string, error) {
 	return buff.String(), nil
 }
 
-func (r release) less(o release) bool {
-	return r.Major < o.Major || (r.Major == o.Major && r.Minor < o.Minor)
+func (r stdRelease) Tag() string {
+	return "knative-v" + r.String()
+}
+
+func (r stdRelease) less(o release) bool {
+	if so, ok := o.(stdRelease); ok {
+		return r.Major < so.Major || (r.Major == so.Major && r.Minor < so.Minor)
+	}
+	return false
 }
 
 func (o Operation) findMissingDownstreamReleases() ([]release, error) {
@@ -110,7 +124,7 @@ func (o Operation) listReleases(upstream bool) ([]release, error) {
 		if name.IsBranch() {
 			branch := name.Short()
 			if matches := re.FindStringSubmatch(branch); matches != nil {
-				version := release{atoi(matches[1]), atoi(matches[2])}
+				version := stdRelease{atoi(matches[1]), atoi(matches[2])}
 				releases = append(releases, version)
 			}
 		}

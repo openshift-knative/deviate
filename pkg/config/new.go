@@ -11,7 +11,7 @@ func New(
 	log log.Logger,
 	informer git.RemoteURLInformer,
 ) (Config, error) {
-	c := newDefaults()
+	c := newDefaults(project)
 	err := c.load(project, log, informer)
 	if err != nil {
 		return Config{}, err

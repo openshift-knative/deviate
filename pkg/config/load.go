@@ -7,7 +7,7 @@ import (
 
 	"github.com/openshift-knative/deviate/pkg/config/git"
 	"github.com/openshift-knative/deviate/pkg/log"
-	"gopkg.in/yaml.v3"
+	"sigs.k8s.io/yaml"
 )
 
 var (

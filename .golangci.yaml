@@ -39,5 +39,4 @@ linters-settings:
       - github.com/openshift-knative/hack/*
   gomoddirectives:
     # List of allowed `replace` directives. Default is empty.
-    replace-allow-list:
-      - github.com/openshift-knative/hack
+    replace-allow-list: []

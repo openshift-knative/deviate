@@ -13,7 +13,7 @@ import (
 func (o Operation) mirrorRelease(rel release) error {
 	return runSteps([]step{
 		o.createNewRelease(rel),
-		o.addForkFiles,
+		o.addForkFiles(rel),
 		o.applyPatches,
 		o.switchToMain,
 		o.pushRelease(rel),
@@ -32,7 +32,7 @@ func (o Operation) pushRelease(rel release) step {
 		o.Printf("- Publishing release: %s\n", color.Blue(rel.String()))
 		branch, err := rel.Name(o.Config.ReleaseTemplates.Downstream)
 		if err != nil {
-			return err
+			return errors.Wrap(err, ErrSyncFailed)
 		}
 		pr := push{State: o.State, branch: branch}
 		return runSteps(pr.steps())
@@ -48,11 +48,11 @@ type createNewRelease struct {
 func (r createNewRelease) step() error {
 	upstreamBranch, err := r.rel.Name(r.Config.ReleaseTemplates.Upstream)
 	if err != nil {
-		return err
+		return errors.Wrap(err, ErrSyncFailed)
 	}
 	downstreamBranch, err := r.rel.Name(r.Config.ReleaseTemplates.Downstream)
 	if err != nil {
-		return err
+		return errors.Wrap(err, ErrSyncFailed)
 	}
 	return runSteps([]step{
 		r.fetch,
