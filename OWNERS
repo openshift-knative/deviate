@@ -1,0 +1,18 @@
+# The OWNERS file is used by prow to automatically merge approved PRs.
+
+approvers:
+- dsimansk
+- cardil
+- pierDipi
+- creydr
+- maschmid
+- openshift-cherrypick-robot
+
+reviewers:
+- dsimansk
+- cardil
+- pierDipi
+- creydr
+- maschmid
+- mvinkler
+- jrangelramos
