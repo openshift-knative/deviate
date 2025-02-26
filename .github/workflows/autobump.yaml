@@ -1,0 +1,22 @@
+name: Autobump
+
+on:
+  schedule:
+    - cron: '30 2 * * 1-5'
+
+jobs:
+  autobump-go:
+    name: Go
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Install GH CLI
+      uses: dev-hanz-ops/install-gh-cli-action@v0.2.1
+
+    - uses: actions/checkout@v4
+
+    - name: Autobump
+      run:
+        .github/workflows/autobump.sh
+        --branch autobump/go
+        --dep github.com/openshift-knative/hack
