@@ -22,3 +22,5 @@ jobs:
         --repo ${{ github.repository }}
         --branch autobump/go
         --dep github.com/openshift-knative/hack
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
