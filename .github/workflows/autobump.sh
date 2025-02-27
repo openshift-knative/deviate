@@ -78,7 +78,7 @@ if [ "$(git status --porcelain | wc -l)" -eq 0 ]; then
 fi
 
 git commit -m 'Autobump of deps'
-git push -u
+git push origin HEAD --set-upstream --force
 
 if ! (( pr )); then
   gh pr create \

@@ -16,8 +16,8 @@ jobs:
 
     - name: Configure Git user
       run: |
-        git config --global user.email "serverless-support@redhat.com"
-        git config --global user.name "OpenShift Serverless"
+        git config --global user.email "ocf-qe@redhat.com"
+        git config --global user.name "Serverless QE"
 
     - uses: actions/checkout@v4
 
