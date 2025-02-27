@@ -14,6 +14,11 @@ jobs:
     - name: Install GH CLI
       uses: dev-hanz-ops/install-gh-cli-action@v0.2.1
 
+    - name: Configure Git user
+      run: |
+        git config --global user.email "serverless-support@redhat.com"
+        git config --global user.name "OpenShift Serverless"
+
     - uses: actions/checkout@v4
 
     - name: Autobump
