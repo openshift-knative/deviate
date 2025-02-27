@@ -78,10 +78,9 @@ if [ "$(git status --porcelain | wc -l)" -eq 0 ]; then
 fi
 
 git commit -m 'Autobump of deps'
+git push -u
 
-if (( pr )); then
-  git push
-else
+if ! (( pr )); then
   gh pr create \
     --title ':robot: Autobump of deps' \
     --body 'This is automated PR' \
