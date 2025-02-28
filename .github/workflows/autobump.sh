@@ -86,6 +86,7 @@ if ! (( pr )); then
     --body 'This is automated PR' \
     --label 'skip-review' \
     --label 'kind/cleanup' \
+    --label 'dependencies' \
     --label 'ci/autobump' \
     --repo "$repo"
 fi
