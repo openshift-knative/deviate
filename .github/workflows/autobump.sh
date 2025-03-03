@@ -69,6 +69,7 @@ for dep in "${deps[@]}"; do
 done
 
 go mod tidy
+go mod download
 go work sync
 git add .
 
