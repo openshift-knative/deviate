@@ -6,10 +6,12 @@ on:
       - v*
     branches:
       - main
-      - master
-      - release-*
-      - autobump/*
+      - 'release-**'
   pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
 
 env:
   FORCE_COLOR: true
