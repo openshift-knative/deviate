@@ -700,8 +700,8 @@ github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
 github.com/opencontainers/image-spec v1.1.0 h1:8SG7/vwALn54lVB/0yZ/MMwhFrPYtpEHQb2IpWsCzug=
 github.com/opencontainers/image-spec v1.1.0/go.mod h1:W4s4sFTMaBeK1BQLXbG4AdM2szdn85PY75RI83NrTrM=
-github.com/openshift-knative/hack v0.0.0-20250307080821-d793e897ac4c h1:rTzVxNhYUuLVUzLNrqy5bPe/n0XH0O37j91tftpFXpw=
-github.com/openshift-knative/hack v0.0.0-20250307080821-d793e897ac4c/go.mod h1:EzKXaKNcQkeVTwYP44IYQPGsXTGnRS+XArHTk3baqos=
+github.com/openshift-knative/hack v0.0.0-20250310110127-85d7ee10173f h1:EVPs2/qxC+tae9Odsojxn8iPiPKIPz/6qh06k87ybvw=
+github.com/openshift-knative/hack v0.0.0-20250310110127-85d7ee10173f/go.mod h1:EzKXaKNcQkeVTwYP44IYQPGsXTGnRS+XArHTk3baqos=
 github.com/openshift/api v0.0.0-20240522145529-93d6bda14341 h1:JQpzgk+p24rkgNbNsrNR0yLm63WTKapuT60INU5BqT8=
 github.com/openshift/api v0.0.0-20240522145529-93d6bda14341/go.mod h1:qNtV0315F+f8ld52TLtPvrfivZpdimOzTi3kn9IVbtU=
 github.com/openshift/ci-tools v0.0.0-20240910200445-d561bdd430ec h1:aDd0NsfluKD3ZzYeyE5RgZbVoJ6eGaHB4vrfMLqfYEg=
