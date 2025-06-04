@@ -8,6 +8,7 @@ import (
 
 	"github.com/openshift-knative/deviate/pkg/config/git"
 	"github.com/openshift-knative/deviate/pkg/errors"
+	"github.com/openshift-knative/deviate/pkg/log/color"
 )
 
 func (o Operation) triggerCI() error {
@@ -27,11 +28,18 @@ type triggerCI struct {
 
 func (c triggerCI) run() error {
 	c.Println("Trigger CI")
+
+	// If SyncCi is not explicitly set (i.e., it's an empty string), skip this feature.
+	if c.Config.Branches.SyncCi == "" {
+		c.Println(color.Yellow("Skipping CI trigger because 'branches.syncCi' is not configured."))
+		return nil
+	}
+
 	return runSteps([]step{
 		c.checkout,
 		c.addChange,
 		c.commitChanges(c.triggerCIMessage()),
-		c.pushBranch(c.Config.Branches.SynchCI + c.Config.Branches.ReleaseNext),
+		c.pushBranch(c.Config.Branches.SyncCi + c.Config.Branches.ReleaseNext),
 	})
 }
 
@@ -41,7 +49,7 @@ func (c triggerCI) checkout() error {
 		URL:  c.Config.Downstream,
 	}
 	err := c.Repository.Checkout(remote, c.Config.Branches.ReleaseNext).
-		As(c.Config.Branches.SynchCI + c.Config.Branches.ReleaseNext)
+		As(c.Config.Branches.SyncCi + c.Config.Branches.ReleaseNext)
 	return errors.Wrap(err, ErrSyncFailed)
 }
 
