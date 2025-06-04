@@ -3,6 +3,7 @@ package sync
 import (
 	"os"
 	"path"
+	"reflect"
 	"strings"
 
 	"github.com/openshift-knative/deviate/pkg/errors"
@@ -12,6 +13,11 @@ import (
 
 func (o Operation) generateImages(rel release) step {
 	return func() error {
+		// Check if DockerfileGen configuration is provided
+		if reflect.DeepEqual(o.Config.DockerfileGen, dockerfilegen.Params{}) {
+			o.Println("- DockerfileGen configuration not found, skipping image generation.")
+			return nil
+		}
 		o.Println("- Generating images")
 		params := o.Config.DockerfileGen
 		var closer func()
