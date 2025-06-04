@@ -1,9 +1,10 @@
 package sync
 
 import (
-	"fmt"
+	"bytes"
 	"os"
 	"path"
+	"text/template"
 	"time"
 
 	"github.com/openshift-knative/deviate/pkg/config/git"
@@ -14,11 +15,52 @@ func (o Operation) triggerCI() error {
 	return triggerCI{o}.run()
 }
 
+// triggerCIMessageData holds the data for the TriggerCI message template.
+type triggerCIMessageData struct {
+	ReleaseBranch string
+	MainBranch    string
+}
+
 func (o Operation) triggerCIMessage() string {
-	return fmt.Sprintf(
-		o.Config.Messages.TriggerCI,
-		o.Config.Branches.ReleaseNext,
-		o.Config.Branches.Main)
+	tmplData := triggerCIMessageData{
+		ReleaseBranch: o.Config.Branches.ReleaseNext,
+		MainBranch:    o.Config.Branches.Main,
+	}
+
+	t, err := template.New("triggerCIMessage").Parse(o.Config.Messages.TriggerCI)
+	if err != nil {
+		o.Printf("Error parsing TriggerCI message template: %v. Using raw template string.", err)
+		return o.Config.Messages.TriggerCI // Return raw template on parsing error
+	}
+
+	var buf bytes.Buffer
+	if err := t.Execute(&buf, tmplData); err != nil {
+		o.Printf("Error executing TriggerCI message template: %v. Using raw template string.", err)
+		return o.Config.Messages.TriggerCI // Return raw template on execution error
+	}
+
+	return buf.String()
+}
+
+func (o Operation) triggerCIBody() string {
+	tmplData := triggerCIMessageData{
+		ReleaseBranch: o.Config.Branches.ReleaseNext,
+		MainBranch:    o.Config.Branches.Main,
+	}
+
+	t, err := template.New("triggerCIBody").Parse(o.Config.Messages.TriggerCIBody)
+	if err != nil {
+		o.Printf("Error parsing TriggerCIBody message template: %v. Using raw template string.", err)
+		return o.Config.Messages.TriggerCIBody // Return raw template on parsing error
+	}
+
+	var buf bytes.Buffer
+	if err := t.Execute(&buf, tmplData); err != nil {
+		o.Printf("Error executing TriggerCIBody message template: %v. Using raw template string.", err)
+		return o.Config.Messages.TriggerCIBody // Return raw template on execution error
+	}
+
+	return buf.String()
 }
 
 type triggerCI struct {
