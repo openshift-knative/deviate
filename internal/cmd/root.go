@@ -17,9 +17,10 @@ type App struct{}
 
 func (a App) Command() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     metadata.Name,
-		Short:   metadata.Description,
-		Version: metadata.Version,
+		Use:          metadata.Name,
+		Short:        metadata.Description,
+		Version:      metadata.Version,
+		SilenceUsage: true,
 	}
 	cmd.SetOut(os.Stdout)
 	cmd.SetErr(os.Stderr)
