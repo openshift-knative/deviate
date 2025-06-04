@@ -192,3 +192,4 @@ Set up Mergify via its dashboard (app.mergify.com) for your repository:
          merge:
            method: squash # or merge, rebase
    ```
+
