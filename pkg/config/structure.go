@@ -9,6 +9,7 @@ type Config struct {
 	DryRun                     bool                 `json:"dryRun"`
 	GithubWorkflowsRemovalGlob string               `json:"githubWorkflowsRemovalGlob" valid:"required"`
 	SyncLabels                 []string             `json:"syncLabels"                 valid:"required"`
+	SkipImage                  bool                 `json:"skipImage,omitempty"`
 	DockerfileGen              dockerfilegen.Params `json:"dockerfileGen"`
 	ResyncReleases             `json:"resyncReleases"`
 	Branches                   `json:"branches"`

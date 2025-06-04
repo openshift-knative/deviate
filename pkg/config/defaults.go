@@ -39,6 +39,7 @@ func newDefaults(project Project) Config {
 			ImagesGenerated: ":vhs: Images generated",
 		},
 		SyncLabels:    []string{"kind/sync-fork-to-upstream"},
+		SkipImage:     false,
 		DockerfileGen: dockerfilegen.DefaultParams(project.Path),
 	}
 }
