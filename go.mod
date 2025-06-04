@@ -1,4 +1,4 @@
-module github.com/openshift-knative/deviate
+module github.com/rhuss/deviate
 
 go 1.22.9
 
