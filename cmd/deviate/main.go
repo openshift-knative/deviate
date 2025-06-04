@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/openshift-knative/deviate/internal/cmd"
+	cmd "github.com/openshift-knative/deviate/internal/cmd"
 	"github.com/wavesoftware/go-commandline"
 )
 
