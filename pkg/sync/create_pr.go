@@ -16,7 +16,7 @@ func (o Operation) createSyncReleaseNextPR() error {
 		o.triggerCIMessage(),
 		o.triggerCIBody(),
 		branches.ReleaseNext,
-		branches.SynchCI+branches.ReleaseNext,
+		branches.SyncCi+branches.ReleaseNext,
 	)
 }
 
