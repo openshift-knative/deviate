@@ -6,10 +6,11 @@
 [![Releases](https://img.shields.io/github/release-pre/openshift-knative/deviate.svg?sort=semver)](https://github.com/openshift-knative/deviate/releases)
 [![LICENSE](https://img.shields.io/github/license/openshift-knative/deviate.svg)](https://github.com/openshift-knative/deviate/blob/main/LICENSE)
 
-A tool used to handle forks of upstream projects with workflow used in 
-OpenShift Serverless.
+`deviate` is a general-purpose tool designed to manage forks of upstream projects and automate the synchronization of changes. It helps maintain your fork by managing release branches, applying fork-specific patches, and creating well-defined pull requests, potentially replacing manual scripts like `update-to-head.sh` and `create-release.sh`.
 
-Handles forks of upstream projects with a customizable workflow. `deviate` automates the synchronization of changes from an upstream repository to your fork, including managing release branches, applying patches, and creating well-defined pull requests.
+It promotes an **upstream-first** contribution model, where fork-specific patches represent the minimal delta required, and most changes are ideally contributed back to the upstream project.
+
+While initially developed within the OpenShift Serverless context, its core functionality is not specific to it. An optional feature for Dockerfile generation (`dockerfileGen`) uses a library from `openshift-knative/hack`, but the rest of the tool is broadly applicable.
 
 ## Features
 
@@ -17,14 +18,17 @@ Handles forks of upstream projects with a customizable workflow. `deviate` autom
 *   **Configurable Behavior**: Uses a YAML configuration file (`.deviate.yaml`) to define upstream/downstream repositories, branch names, PR labels, commit/PR messages, and more.
 *   **Automated PR Creation**: Generates pull requests for synchronization changes using the `gh` CLI.
 *   **CI Integration**: Creates a special "CI trigger" commit to ensure your CI workflows run on the proposed changes.
-*   **Release Management**: Supports patterns for release branch naming and synchronization.
+*   **Release Management**:
+    *   Supports patterns for release branch naming and synchronization from upstream release branches.
+    *   Automates the creation of "resync PRs" to update fork release branches when the corresponding upstream release branch receives updates (e.g., cherry-picked commits).
 *   **Tag Syncing**: Can synchronize Git tags from the upstream.
+*   **Patch Application**: Manages fork-specific patches, applying them to the development line and at the creation of new release branches.
 
 ## Configuration (`.deviate.yaml`)
 
-`deviate` requires a configuration file named `.deviate.yaml` in the root of your repository. This file defines how `deviate` should operate.
+`deviate` requires a configuration file named `.deviate.yaml` in the root of your repository.
 
-Here's an example structure with comments explaining key fields:
+Here's an example structure:
 
 ```yaml
 # Upstream repository URL (e.g., git@github.com:upstream/project.git)
@@ -35,98 +39,94 @@ downstream: "DOWNSTREAM_REPO_URL"
 # Set to true to simulate changes without pushing or creating PRs
 dryRun: false
 
-# Glob pattern for GitHub workflow files to remove (e.g., from upstream, if they are not relevant to the fork)
+# Glob pattern for GitHub workflow files to remove (e.g., from upstream)
 githubWorkflowsRemovalGlob: ".github/workflows/upstream-ci-*.yaml"
 
 # Labels to apply to Pull Requests created by deviate
-# These can be used by tools like Mergify for auto-merging.
 syncLabels:
   - "bot/sync"
-  - "apply-patches"
+  - "apply-patches" # Example label for patches
 
-# Configuration for Dockerfile generation (if applicable)
-# See github.com/openshift-knative/hack/pkg/dockerfilegen for details
+# Optional: Configuration for Dockerfile generation
+# Uses github.com/openshift-knative/hack/pkg/dockerfilegen
 dockerfileGen:
-  # enabled: true
-  # ... other dockerfilegen params
-  # Disabled by default, enable and configure if needed.
   enabled: false
+  # ... other dockerfilegen params
 
-# Configuration for re-syncing a certain number of past releases
+# Configuration for re-syncing a certain number of past releases from upstream
 resyncReleases:
-  enabled: false # Set to true to enable resyncing past releases
-  numberOf: 3    # Number of past releases to resync if enabled
+  enabled: true # Set to true to enable resyncing past releases
+  numberOf: 3   # Number of past releases to resync if enabled
 
 branches:
-  # Name of the main/default branch in your fork
+  # Main/default branch in your fork. Patches are typically applied here continuously.
+  # This branch is often used as the base for `releaseNext`.
   main: "main"
-  # Prefix or name for the branch that tracks the next upstream release
-  releaseNext: "release-" # This often includes a version, e.g., "release-1.23" which deviate will determine
-  # Name of the branch used for triggering CI builds before creating the main sync PR
-  # This will be combined with the release branch name, e.g., "sync-ci-release-1.23"
+  # `releaseNext` defines the pattern for the rolling "next release" branch in your fork.
+  # It usually tracks the main development line of the upstream (e.g., upstream/main).
+  # Deviate will determine the actual version (e.g., "release-1.23") based on upstream tags/branches.
+  # Fork-specific patches are continuously applied to this line.
+  releaseNext: "release-"
+  # Branch prefix for CI trigger branches (e.g., "sync-ci-release-1.23")
   synchCi: "sync-ci-"
   releaseTemplates:
-    # Go template for naming upstream release branches. {{ .Version }} is available.
+    # Go template for identifying/naming upstream release branches. {{ .Version }} is available.
     upstream: "release-{{ .Version }}"
-    # Go template for naming downstream release branches in your fork. {{ .Version }} is available.
+    # Go template for naming downstream (fork) release branches. {{ .Version }} is available.
     downstream: "release-{{ .Version }}"
   searches:
-    # Regex to find upstream release branches
+    # Regex to find upstream release branches. Needs a `Version` capture group.
     upstreamReleases: '^release-(?P<Version>\d+\.\d+)$'
-    # Regex to find downstream release branches (in your fork)
+    # Regex to find downstream release branches. Needs a `Version` capture group.
     downstreamReleases: '^release-(?P<Version>\d+\.\d+)$'
 
 tags:
-  # Whether to synchronize tags
   synchronize: true
-  # RefSpec for tag synchronization (e.g., "v*")
-  refSpec: "v*"
+  refSpec: "v*" # Example: sync all tags starting with 'v'
 
 messages:
-  # Commit message (and PR title) for the CI trigger PR.
-  # {{ .ReleaseBranch }} and {{ .MainBranch }} are available placeholders.
   triggerCi: "chore(sync): Trigger CI for {{ .ReleaseBranch }} into {{ .MainBranch }}"
-  # PR body for the CI trigger PR.
-  # {{ .ReleaseBranch }} and {{ .MainBranch }} are available placeholders.
   triggerCiBody: "Automated PR to trigger CI for syncing `{{ .ReleaseBranch }}` into `{{ .MainBranch }}`."
-  # Commit message for applying fork-specific files/patches.
   applyForkFiles: "chore: Apply fork-specific files and patches"
-  # Commit message when images are generated (if dockerfileGen is used).
   imagesGenerated: "chore: Generate images"
+```
 
 ## How `deviate sync` Works
 
-The core command is `deviate sync`. When executed (typically in a GitHub Action):
+The `deviate sync` command orchestrates the synchronization process:
 
 1.  **Loads Configuration**: Reads `.deviate.yaml`.
 2.  **Fetches Remotes**: Updates local refs for upstream and downstream repositories.
-3.  **Determines Releases**: Identifies relevant release branches based on `branches.searches` and `branches.releaseTemplates`.
-4.  **Mirrors Releases**: For each relevant release, it mirrors the upstream release branch to a local equivalent in your fork.
-5.  **Applies Patches/Fork Files**: (Implied) Applies any patches or fork-specific modifications. This often involves a set of patch files or scripts managed within your fork.
-6.  **Tag Syncing**: If `tags.synchronize` is true, it syncs tags matching `tags.refSpec`.
-7.  **Prepares "Release Next" Sync**:
-    *   Checks out the downstream `releaseNext` branch (e.g., `release-1.23`).
-    *   Creates a temporary branch from it (e.g., `sync-ci-release-1.23`).
-    *   Adds a small, timestamped file (`ci`) to this temporary branch and commits it. This ensures there's a change to trigger CI workflows. The commit message uses the `messages.triggerCi` template.
-    *   Pushes this temporary CI trigger branch.
-8.  **Creates Sync Pull Request**:
-    *   Uses `gh pr create` to open a Pull Request.
-    *   **Title**: From `messages.triggerCi` template.
-    *   **Body**: From `messages.triggerCiBody` template.
-    *   **Base Branch**: The target release branch (e.g., `release-1.23`).
-    *   **Head Branch**: The temporary CI trigger branch (e.g., `sync-ci-release-1.23`).
-    *   **Labels**: Applies labels defined in `syncLabels` from your config.
+3.  **Manages `release-next` Branch (Fork's Rolling Development Line)**:
+    *   Ensures the fork's branch corresponding to `branches.releaseNext` (e.g., `release-1.24` if upstream's latest is `1.24`) is up-to-date with the upstream's main development line (e.g., `upstream/main`).
+    *   Applies fork-specific patches to this `release-next` branch.
+4.  **Processes Existing Release Branches**:
+    *   For each existing release branch in the fork (e.g., `release-1.23`) that also exists upstream:
+        *   If `resyncReleases.enabled` is true, `deviate` checks for new commits on the *upstream* release branch (e.g., `upstream/release-1.23`) that are not yet on the fork's corresponding release branch.
+        *   If new commits are found, `deviate` creates a "resync PR" in the fork to bring these commits from the upstream release branch into the fork's release branch. This helps automate the process of incorporating upstream bug fixes or backports into your fork's maintained releases.
+5.  **Creates New Release Branches**:
+    *   If `deviate` identifies a new release upstream (e.g., upstream creates `release-1.25`) for which the fork does not yet have a corresponding branch:
+        *   It creates a new release branch in the fork (e.g., `downstream/release-1.25`) based on the upstream one.
+        *   Fork-specific patches are applied *once* to this newly created release branch.
+6.  **Tag Syncing**: If `tags.synchronize` is true, syncs tags matching `tags.refSpec`.
+7.  **CI Trigger and Sync PR for `release-next`**:
+    *   Creates a temporary CI trigger branch (e.g., `sync-ci-release-1.24`) from the fork's `release-next` branch.
+    *   Adds a small, timestamped file (`ci`) to this temporary branch and commits it (using `messages.triggerCi`). This ensures CI workflows run.
+    *   Pushes this CI trigger branch.
+    *   Creates a Pull Request to merge the CI trigger branch (e.g., `sync-ci-release-1.24`) into the actual `release-next` branch (e.g., `release-1.24`) in the fork. Labels from `syncLabels` are applied.
+
+**Note on Upstream Branching**: `deviate`'s release management features work best when the upstream project also maintains release branches (e.g., `release-1.23`, `release-1.24`). If the upstream only uses a `main` branch for all development and releases, then `deviate` will primarily sync that `upstream/main` to your fork's `releaseNext` / `main` branch.
 
 ## Quickstart: GitHub Actions Workflow
 
-There isn't a pre-configured GitHub Actions workflow for `deviate sync` in this repository, as its execution is specific to the fork using it. Here's an example workflow you can add to your forked repository (e.g., in `.github/workflows/sync-upstream.yaml`):
+To automate `deviate sync`, you can use a GitHub Actions workflow. Add the following to `.github/workflows/sync-upstream.yaml` in your forked repository:
 
 ```yaml
 name: Sync Upstream
 
 on:
   schedule:
-    # Run at 3 AM UTC every day
+    # Example: Run at 3 AM UTC every day
     - cron: '0 3 * * *'
   workflow_dispatch: {} # Allows manual triggering
 
@@ -137,16 +137,13 @@ jobs:
       - name: Checkout Fork
         uses: actions/checkout@v4
         with:
-          # Ensure you have a token with write access to create PRs
-          # This is usually the default GITHUB_TOKEN for actions in the same repo
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Fetch all history for all tags and branches
-          fetch-depth: 0
+          fetch-depth: 0 # Fetch all history for all tags and branches
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21' # Or your project's Go version
+          go-version: '1.21' # Adjust to your project's Go version
 
       - name: Install gh CLI
         uses: dev-hanz-ops/install-gh-cli-action@v0.2.1
@@ -163,42 +160,35 @@ jobs:
         run: deviate sync
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # If your .deviate.yaml contains sensitive information or needs to be dynamically generated,
-          # you might consider alternative ways to provide it (e.g., create it in a previous step).
-          # For most use cases, committing .deviate.yaml to your fork is standard.
 ```
 
 **Before using this workflow:**
 
-1.  **Create `.deviate.yaml`**: Ensure a valid `.deviate.yaml` configuration file exists in the root of your forked repository.
-2.  **Git User**: Update the Git user email and name in the workflow to attribute commits correctly.
-3.  **Go Version**: Adjust the Go version if necessary.
-4.  **Permissions**: The `GITHUB_TOKEN` usually has sufficient permissions to create PRs within the same repository. If `deviate` needs to push to protected branches directly (not typical for PR creation flow), you might need a PAT with more permissions.
+1.  **Create `.deviate.yaml`**: Ensure a valid `.deviate.yaml` configuration file is in your fork.
+2.  **Git User**: Update the Git user email and name.
+3.  **Permissions**: The `GITHUB_TOKEN` usually has permissions to create PRs. For direct pushes to protected branches (if ever needed, though not typical for this flow), a PAT might be required.
 
 ## Auto-merging Sync PRs with Mergify
 
-`deviate` applies labels (from `syncLabels` in `.deviate.yaml`) to the pull requests it creates. You can use these labels to configure Mergify for auto-merging.
+Use the `syncLabels` in `.deviate.yaml` to configure Mergify for auto-merging PRs created by `deviate`.
 
-Since there is no `.mergify.yml` file in this repository (as Mergify configuration is specific to the repository using it), you'll need to configure Mergify through its dashboard (app.mergify.com):
+Set up Mergify via its dashboard (app.mergify.com) for your repository:
 
-1.  **Ensure Mergify is installed** on your forked repository.
-2.  **Define `syncLabels` in `.deviate.yaml`**: Choose one or more labels that signify a PR is a sync PR ready for potential auto-merge (e.g., `bot/sync`, `automerge-sync`).
-3.  **Create Mergify Rules**: In the Mergify dashboard for your repository, create rules that match these labels and define the conditions for merging.
+1.  **Install Mergify** on your fork.
+2.  **Define `syncLabels`** in `.deviate.yaml` (e.g., `bot/sync`, `automerge-sync`).
+3.  **Create Mergify Rules** to match these labels and define merge conditions.
 
-   Example Mergify rule concept (syntax for illustration):
+   Example Mergify rule concept:
 
    ```yaml
-   # This is conceptual and needs to be configured in the Mergify UI or a .mergify.yml in your fork
+   # In Mergify UI or .mergify.yml in your fork
    pull_request_rules:
      - name: Auto-merge deviate sync PRs
        conditions:
-         - "label=bot/sync"        # Matches one of your syncLabels
-         - "status-success=CI_Check_1" # Ensure your CI checks pass
-         - "status-success=CI_Check_2"
-         # Add other conditions like no conflicts, approved reviews (if needed), etc.
+         - "label=bot/sync"
+         - "status-success=Your_CI_Check_Name"
+         # Add other conditions (no conflicts, etc.)
        actions:
          merge:
            method: squash # or merge, rebase
    ```
-
-By configuring `deviate` to apply specific labels and then instructing Mergify to act on those labels, you can achieve a fully automated sync and merge process.
