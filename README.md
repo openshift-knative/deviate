@@ -6,7 +6,7 @@
 [![Releases](https://img.shields.io/github/release-pre/openshift-knative/deviate.svg?sort=semver)](https://github.com/openshift-knative/deviate/releases)
 [![LICENSE](https://img.shields.io/github/license/openshift-knative/deviate.svg)](https://github.com/openshift-knative/deviate/blob/main/LICENSE)
 
-`deviate` is a general-purpose tool designed to manage forks of upstream projects and automate the synchronization of changes. It helps maintain your fork by managing release branches, applying fork-specific patches, and creating well-defined pull requests, potentially replacing manual scripts like `update-to-head.sh` and `create-release.sh`.
+`deviate` is a general-purpose tool designed to manage forks of upstream projects and automate the synchronization of changes. It helps maintain your fork by managing release branches, applying fork-specific patches, and creating well-defined pull requests, potentially replacing manual scripts like `update-to-head.sh` and `create-release.sh`. It offers a more robust, configurable, and Git-native approach compared to traditional shell-script-based processes for fork synchronization. For instance, `deviate` emphasizes PR-based updates to target branches (like `release-next`) rather than direct force pushes, enhancing safety and traceability in your workflow.
 
 It promotes an **upstream-first** contribution model, where fork-specific patches represent the minimal delta required, and most changes are ideally contributed back to the upstream project.
 
@@ -23,6 +23,26 @@ While initially developed within the OpenShift Serverless context, its core func
     *   Automates the creation of "resync PRs" to update fork release branches when the corresponding upstream release branch receives updates (e.g., cherry-picked commits).
 *   **Tag Syncing**: Can synchronize Git tags from the upstream.
 *   **Patch Application**: Manages fork-specific patches, applying them to the development line and at the creation of new release branches.
+
+### Modernizing Fork Synchronization: `deviate` vs. Legacy Scripts
+
+`deviate` is well-suited to replace older, often complex, shell-script-based processes for keeping forks synchronized with their upstreams. If you have a process similar to the described "Knative Nightly CI" example (which involved Jenkins and an `update-to-head.sh` script), here's how `deviate` offers a more modern and integrated solution:
+
+*   **Automation**: Instead of a Jenkins job running a shell script, `deviate sync` can be executed by a GitHub Actions workflow (see [Quickstart](#quickstart-github-actions-workflow)), providing better integration with your GitHub repository.
+*   **Fork-Specific Content and Builds**:
+    *   Legacy processes might involve explicit `git checkout` commands for files like `OWNERS` or `Makefile`, followed by `make` commands for generation (e.g., `make generate-dockerfiles`).
+    *   With `deviate`, fork-specific file modifications are handled through its patching mechanism. Broader build or code generation steps (like running `make` targets) are expected to be part of your CI pipeline. This pipeline is triggered by `deviate` after it prepares the synchronized branch with applied patches. `deviate` also includes an optional `dockerfileGen` feature for a common Dockerfile generation use case.
+*   **CI Triggering and Updates**:
+    *   Older scripts might directly commit and force-push to a development branch (e.g., `release-next`), then separately create a PR to a CI-specific branch (e.g., `release-next-ci`) to trigger CI.
+    *   `deviate` refines this by:
+        1.  Preparing all changes (upstream sync + patches) on a dedicated CI trigger branch (e.g., `sync-ci-release-1.x`).
+        2.  Making a distinct commit (often a small, timestamped file change) on this CI branch to reliably trigger CI workflows.
+        3.  Creating a Pull Request from this CI branch *into* your fork's actual target development branch (e.g., `release-1.x`).
+        This method ensures CI validates the exact set of proposed changes *before* they are merged into your main development line, offering a clearer, safer, and more traceable update path.
+*   **Automated Merging**:
+    *   Where a custom webhook (e.g., Google Cloud Functions using `hub` CLI commands) might have handled PR merging based on labels and CI status, `deviate` facilitates this through standard tools like Mergify. By assigning specific labels (via `syncLabels` in `.deviate.yaml`), you can configure Mergify to automatically merge these PRs once all CI checks pass.
+
+By adopting `deviate`, you gain a more standardized, configurable, and transparent process for managing fork synchronization, reducing the maintenance burden of custom scripts and leveraging modern CI/CD practices.
 
 ## Configuration (`.deviate.yaml`)
 
@@ -100,6 +120,7 @@ The `deviate sync` command orchestrates the synchronization process:
 3.  **Manages `release-next` Branch (Fork's Rolling Development Line)**:
     *   Ensures the fork's branch corresponding to `branches.releaseNext` (e.g., `release-1.24` if upstream's latest is `1.24`) is up-to-date with the upstream's main development line (e.g., `upstream/main`).
     *   Applies fork-specific patches to this `release-next` branch.
+    *   **Note on Fork-Specific Builds**: `deviate` focuses on Git history synchronization and patch application. Custom build or code generation steps (e.g., `make generate-dockerfiles`, `make some-other-target`) that might have been part of older synchronization scripts should typically be integrated into your CI/CD pipeline. This pipeline runs on the branch that `deviate` prepares and proposes for merge via a Pull Request, ensuring these steps are executed on the fully synchronized code before merging.
 4.  **Processes Existing Release Branches**:
     *   For each existing release branch in the fork (e.g., `release-1.23`) that also exists upstream:
         *   If `resyncReleases.enabled` is true, `deviate` checks for new commits on the *upstream* release branch (e.g., `upstream/release-1.23`) that are not yet on the fork's corresponding release branch.
