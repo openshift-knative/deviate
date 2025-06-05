@@ -15,6 +15,11 @@ func (r Repository) Push(remote git.Remote, refname plumbing.ReferenceName) erro
 	specs := []config.RefSpec{
 		refSpecForReferenceName(refname),
 	}
+
+	if err := r.ensureRemote(remote); err != nil {
+		return err
+	}
+
 	auth, err := authentication(remote)
 	if err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
