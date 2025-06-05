@@ -13,7 +13,6 @@ func newDefaults(project Project) Config {
 		Branches: Branches{
 			Main:        "main",
 			ReleaseNext: "release-next",
-			SynchCI:     "ci/",
 			ReleaseTemplates: ReleaseTemplates{
 				Upstream:   releaseTemplate,
 				Downstream: releaseTemplate,

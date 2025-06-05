@@ -40,7 +40,7 @@ type Messages struct {
 type Branches struct {
 	Main             string `json:"main"             valid:"required"`
 	ReleaseNext      string `json:"releaseNext"      valid:"required"`
-	SynchCI          string `json:"synchCi"          valid:"required"`
+	SyncCi           string `json:"syncCi"`
 	ReleaseTemplates `json:"releaseTemplates"`
 	Searches         `json:"searches"`
 }
