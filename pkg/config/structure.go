@@ -4,12 +4,12 @@ import "github.com/openshift-knative/hack/pkg/dockerfilegen"
 
 // Config for a deviate to operate.
 type Config struct {
-	Upstream                   string               `json:"upstream"                   valid:"required"`
-	Downstream                 string               `json:"downstream"                 valid:"required"`
-	DryRun                     bool                 `json:"dryRun"`
-	GithubWorkflowsRemovalGlob string               `json:"githubWorkflowsRemovalGlob" valid:"required"`
-	SyncLabels                 []string             `json:"syncLabels"                 valid:"required"`
-	DockerfileGen              dockerfilegen.Params `json:"dockerfileGen"`
+	Upstream                   string        `json:"upstream"                   valid:"required"`
+	Downstream                 string        `json:"downstream"                 valid:"required"`
+	DryRun                     bool          `json:"dryRun"`
+	GithubWorkflowsRemovalGlob string        `json:"githubWorkflowsRemovalGlob" valid:"required"`
+	SyncLabels                 []string      `json:"syncLabels"                 valid:"required"`
+	DockerfileGen              DockerfileGen `json:"dockerfileGen"`
 	ResyncReleases             `json:"resyncReleases"`
 	Branches                   `json:"branches"`
 	Tags                       `json:"tags"`
@@ -55,4 +55,10 @@ type ReleaseTemplates struct {
 type Searches struct {
 	UpstreamReleases   string `json:"upstreamReleases"   valid:"required"`
 	DownstreamReleases string `json:"downstreamReleases" valid:"required"`
+}
+
+// DockerfileGen wraps dockerfilegen.Params adding a skip param.
+type DockerfileGen struct {
+	dockerfilegen.Params
+	Skip bool `json:"skip"`
 }

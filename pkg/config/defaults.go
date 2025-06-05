@@ -37,7 +37,9 @@ func newDefaults(project Project) Config {
 			ApplyForkFiles:  ":open_file_folder: Apply fork specific files",
 			ImagesGenerated: ":vhs: Images generated",
 		},
-		SyncLabels:    []string{"kind/sync-fork-to-upstream"},
-		DockerfileGen: dockerfilegen.DefaultParams(project.Path),
+		SyncLabels: []string{"kind/sync-fork-to-upstream"},
+		DockerfileGen: DockerfileGen{
+			Params: dockerfilegen.DefaultParams(project.Path),
+		},
 	}
 }

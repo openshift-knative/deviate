@@ -1,0 +1,5 @@
+upstream: https://github.com/example/project.git
+dockerfileGen:
+  skip: true
+  images-from:
+    - eventing
