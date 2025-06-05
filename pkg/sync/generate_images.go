@@ -14,7 +14,7 @@ func (o Operation) generateImages(rel release) step {
 	return func() error {
 		// Check if DockerfileGen configuration is provided
 		if o.Config.SkipImage {
-			o.Println("- DockerfileGen configuration not found, skipping image generation.")
+			o.Println("- Skip image generation because skipImage is configured.")
 			return nil
 		}
 		o.Println("- Generating images")
