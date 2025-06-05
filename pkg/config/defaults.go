@@ -1,6 +1,9 @@
 package config
 
-import "github.com/openshift-knative/hack/pkg/dockerfilegen"
+import (
+	"github.com/openshift-knative/deviate/pkg/files"
+	"github.com/openshift-knative/hack/pkg/dockerfilegen"
+)
 
 // newDefaults creates a new default configuration.
 func newDefaults(project Project) Config {
@@ -9,7 +12,14 @@ func newDefaults(project Project) Config {
 		releaseSearch   = `^release-(\d+)\.(\d+)$`
 	)
 	return Config{
-		GithubWorkflowsRemovalGlob: "knative-*.y?ml",
+		DeleteFromUpstream: files.Filters{
+			Include: []string{
+				".github/workflows/knative-*.y?ml",
+			},
+		},
+		CopyFromMidstream: files.Filters{
+			Include: []string{"*/*"},
+		},
 		Branches: Branches{
 			Main:        "main",
 			ReleaseNext: "release-next",

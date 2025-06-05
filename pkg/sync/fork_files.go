@@ -7,7 +7,7 @@ import (
 
 func (o Operation) addForkFiles(rel release) step {
 	return multiStep([]step{
-		o.removeGithubWorkflows,
+		o.removeUnwantedUpstreamFiles,
 		o.unpackForkOntoWorkspace,
 		o.commitChanges(o.Config.Messages.ApplyForkFiles),
 		o.generateImages(rel),
@@ -19,6 +19,6 @@ func (o Operation) unpackForkOntoWorkspace() error {
 	o.Println("- Add fork's files")
 	upstream := git.Remote{Name: "upstream", URL: o.Config.Upstream}
 	err := o.Repository.Checkout(upstream, o.Config.Branches.Main).
-		OntoWorkspace()
+		OntoWorkspace(o.Config.CopyFromMidstream)
 	return errors.Wrap(err, ErrSyncFailed)
 }

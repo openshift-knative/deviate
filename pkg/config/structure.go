@@ -1,19 +1,23 @@
 package config
 
-import "github.com/openshift-knative/hack/pkg/dockerfilegen"
+import (
+	"github.com/openshift-knative/deviate/pkg/files"
+	"github.com/openshift-knative/hack/pkg/dockerfilegen"
+)
 
 // Config for a deviate to operate.
 type Config struct {
-	Upstream                   string               `json:"upstream"                   valid:"required"`
-	Downstream                 string               `json:"downstream"                 valid:"required"`
-	DryRun                     bool                 `json:"dryRun"`
-	GithubWorkflowsRemovalGlob string               `json:"githubWorkflowsRemovalGlob" valid:"required"`
-	SyncLabels                 []string             `json:"syncLabels"                 valid:"required"`
-	DockerfileGen              dockerfilegen.Params `json:"dockerfileGen"`
-	ResyncReleases             `json:"resyncReleases"`
-	Branches                   `json:"branches"`
-	Tags                       `json:"tags"`
-	Messages                   `json:"messages"`
+	Upstream           string               `json:"upstream"           valid:"required"`
+	Downstream         string               `json:"downstream"         valid:"required"`
+	DryRun             bool                 `json:"dryRun"`
+	CopyFromMidstream  files.Filters        `json:"copyFromMidstream"  valid:"required"`
+	DeleteFromUpstream files.Filters        `json:"deleteFromUpstream" valid:"required"`
+	SyncLabels         []string             `json:"syncLabels"         valid:"required"`
+	DockerfileGen      dockerfilegen.Params `json:"dockerfileGen"`
+	ResyncReleases     `json:"resyncReleases"`
+	Branches           `json:"branches"`
+	Tags               `json:"tags"`
+	Messages           `json:"messages"`
 }
 
 // ResyncReleases holds configuration for resyncing past releases.
