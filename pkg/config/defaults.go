@@ -18,7 +18,7 @@ func newDefaults(project Project) Config {
 			},
 		},
 		CopyFromMidstream: files.Filters{
-			Include: []string{"*/*"},
+			Include: []string{"**"},
 		},
 		Branches: Branches{
 			Main:        "main",
