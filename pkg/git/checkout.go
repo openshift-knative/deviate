@@ -110,14 +110,14 @@ func (o onGoingCheckout) applyTree(fs billy.Filesystem, dir string, matcher file
 	}
 	for _, f := range infos {
 		fp := path.Join(dir, f.Name())
-		if !matcher.Matches(fp) {
-			continue
-		}
 		if f.IsDir() {
 			err = o.applyTree(fs, fp, matcher)
 			if err != nil {
 				return err
 			}
+			continue
+		}
+		if !matcher.Matches(fp) {
 			continue
 		}
 		err = o.applyFile(fs, fp, f.Mode())
