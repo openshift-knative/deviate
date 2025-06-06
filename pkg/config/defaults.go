@@ -11,8 +11,9 @@ func newDefaults(project Project) Config {
 	return Config{
 		GithubWorkflowsRemovalGlob: "knative-*.y?ml",
 		Branches: Branches{
-			Main:        "main",
-			ReleaseNext: "release-next",
+			Main:          "main",
+			ReleaseNext:   "release-next",
+			CheckPrPrefix: "ci/",
 			ReleaseTemplates: ReleaseTemplates{
 				Upstream:   releaseTemplate,
 				Downstream: releaseTemplate,
@@ -26,7 +27,7 @@ func newDefaults(project Project) Config {
 			RefSpec: "v*",
 		},
 		ResyncReleases: ResyncReleases{
-			NumberOf: 6, //nolint:gomnd
+			NumberOf: 6, //nolint:mnd,gomnd
 		},
 		Messages: Messages{
 			TriggerCI: ":robot: Synchronize branch `%s` to " +

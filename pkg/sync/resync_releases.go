@@ -57,7 +57,7 @@ func (r resyncRelease) run() error {
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
-	syncBranch := r.Config.Branches.SyncCi + downstreamBranch
+	syncBranch := r.Config.Branches.CheckPrPrefix + downstreamBranch
 	r.Printf("Re-syncing release: %s\n", color.Blue(r.rel.String()))
 	downstreamRemote := git.Remote{
 		Name: "downstream",

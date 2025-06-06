@@ -16,7 +16,7 @@ func (o Operation) createSyncReleaseNextPR() error {
 		o.triggerCIMessage(),
 		fmt.Sprintf(o.Config.Messages.TriggerCIBody, branches.ReleaseNext, branches.Main),
 		branches.ReleaseNext,
-		branches.SyncCi+branches.ReleaseNext,
+		branches.CheckPrPrefix+branches.ReleaseNext,
 	)
 }
 
