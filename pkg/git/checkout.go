@@ -99,21 +99,22 @@ func (o onGoingCheckout) OntoWorkspace(filters files.Filters) error {
 	if err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
-	return o.applyTree(wt, "/", filters)
+	matcher := filters.Matcher()
+	return o.applyTree(wt, "/", matcher)
 }
 
-func (o onGoingCheckout) applyTree(fs billy.Filesystem, dir string, filters files.Filters) error {
+func (o onGoingCheckout) applyTree(fs billy.Filesystem, dir string, matcher files.Matcher) error {
 	infos, err := fs.ReadDir(dir)
 	if err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
 	for _, f := range infos {
 		fp := path.Join(dir, f.Name())
-		if !filters.Matches(fp) {
+		if !matcher.Matches(fp) {
 			continue
 		}
 		if f.IsDir() {
-			err = o.applyTree(fs, fp, filters)
+			err = o.applyTree(fs, fp, matcher)
 			if err != nil {
 				return err
 			}

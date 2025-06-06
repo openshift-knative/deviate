@@ -8,10 +8,12 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/go-git/go-billy/v5 v5.6.2
 	github.com/go-git/go-git/v5 v5.13.2
+	github.com/gobwas/glob v0.2.3
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/openshift-knative/hack v0.0.0-20250530124021-bed35e443a23
 	github.com/spf13/cobra v1.9.1
+	github.com/stretchr/testify v1.10.0
 	github.com/wavesoftware/go-commandline v1.3.0
 	github.com/xanzy/ssh-agent v0.3.3
 	gotest.tools/v3 v3.5.2
@@ -236,7 +238,6 @@ require (
 	github.com/spf13/viper v1.18.2 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tektoncd/pipeline v0.61.0 // indirect
 	github.com/theupdateframework/go-tuf v0.7.0 // indirect
