@@ -12,8 +12,12 @@ import (
 
 func (o Operation) generateImages(rel release) step {
 	return func() error {
-		o.Println("- Generating images")
 		params := o.Config.DockerfileGen
+		if params.Skip {
+			o.Println("- Skipping image generation")
+			return nil
+		}
+		o.Println("- Generating images")
 		var closer func()
 		var err error
 		params.ProjectFilePath, closer, err = tempProjectFile(o, rel)
@@ -21,7 +25,7 @@ func (o Operation) generateImages(rel release) step {
 		if err != nil {
 			return err
 		}
-		return dockerfilegen.GenerateDockerfiles(params)
+		return dockerfilegen.GenerateDockerfiles(params.Params)
 	}
 }
 

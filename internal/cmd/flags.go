@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"os"
-	"path"
-
 	"github.com/openshift-knative/deviate/pkg/cli"
 	"github.com/openshift-knative/deviate/pkg/metadata"
 	"github.com/spf13/cobra"
@@ -11,11 +8,6 @@ import (
 
 func addFlags(root *cobra.Command, opts *cli.Options) {
 	fl := root.PersistentFlags()
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	config := path.Join(wd, ".deviate.yaml")
-	fl.StringVar(&opts.ConfigPath, "config", config,
+	fl.StringVar(&opts.ConfigPath, "config", ".deviate.yaml",
 		metadata.Name+" configuration file")
 }
