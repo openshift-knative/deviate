@@ -8,10 +8,9 @@ on:
       - main
       - 'release-**'
   pull_request:
-    types:
-      - opened
-      - edited
-      - reopened
+    branches: 
+      - main
+      - 'release-**'
 
 env:
   FORCE_COLOR: true
