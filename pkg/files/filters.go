@@ -35,6 +35,7 @@ func (m Matcher) Matches(pth string) bool {
 	for _, pattern := range m.Include {
 		if pattern.Match(pth) {
 			result = true
+			break
 		}
 	}
 	if !result {
