@@ -10,7 +10,7 @@ require (
 	github.com/go-git/go-git/v5 v5.13.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/openshift-knative/hack v0.0.0-20250530124021-bed35e443a23
+	github.com/openshift-knative/hack v0.0.0-20250606111731-b27b6829dbe4
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	github.com/wavesoftware/go-commandline v1.3.0
