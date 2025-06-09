@@ -100,7 +100,7 @@ func (o onGoingCheckout) OntoWorkspace(filters files.Filters) error {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
 	matcher := filters.Matcher()
-	return o.applyTree(wt, "/", matcher)
+	return o.applyTree(wt, "", matcher)
 }
 
 func (o onGoingCheckout) applyTree(fs billy.Filesystem, dir string, matcher files.Matcher) error {
