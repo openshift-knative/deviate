@@ -16,6 +16,7 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/openshift-knative/deviate/pkg/config/git"
 	"github.com/openshift-knative/deviate/pkg/errors"
+	"github.com/openshift-knative/deviate/pkg/files"
 )
 
 func (r Repository) Checkout(remote git.Remote, branch string) git.Checkout { //nolint:ireturn
@@ -86,7 +87,7 @@ func (o onGoingCheckout) As(branch string) error {
 	return nil
 }
 
-func (o onGoingCheckout) OntoWorkspace() error {
+func (o onGoingCheckout) OntoWorkspace(filters files.Filters) error {
 	coOpts := &gitv5.CloneOptions{
 		URL:           "file://" + o.repo.Project.Path,
 		ReferenceName: plumbing.NewBranchReferenceName(o.branch),
@@ -98,21 +99,25 @@ func (o onGoingCheckout) OntoWorkspace() error {
 	if err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
-	return o.applyTree(wt, "/")
+	matcher := filters.Matcher()
+	return o.applyTree(wt, "", matcher)
 }
 
-func (o onGoingCheckout) applyTree(fs billy.Filesystem, dir string) error {
-	files, err := fs.ReadDir(dir)
+func (o onGoingCheckout) applyTree(fs billy.Filesystem, dir string, matcher files.Matcher) error {
+	infos, err := fs.ReadDir(dir)
 	if err != nil {
 		return errors.Wrap(err, ErrLocalOperationFailed)
 	}
-	for _, f := range files {
+	for _, f := range infos {
 		fp := path.Join(dir, f.Name())
 		if f.IsDir() {
-			err = o.applyTree(fs, fp)
+			err = o.applyTree(fs, fp, matcher)
 			if err != nil {
 				return err
 			}
+			continue
+		}
+		if !matcher.Matches(fp) {
 			continue
 		}
 		err = o.applyFile(fs, fp, f.Mode())
