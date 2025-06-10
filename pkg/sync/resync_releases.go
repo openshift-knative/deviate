@@ -1,7 +1,9 @@
 package sync
 
 import (
+	"bytes"
 	"fmt"
+	"text/template"
 
 	gitv5 "github.com/go-git/go-git/v5"
 	"github.com/openshift-knative/deviate/pkg/config/git"
@@ -108,9 +110,25 @@ func (r resyncRelease) createSyncReleasePR(downstreamBranch, upstreamBranch, syn
 		title := fmt.Sprintf(
 			r.Config.Messages.TriggerCI,
 			downstreamBranch, upstreamBranch)
-		body := fmt.Sprintf(
-			r.Config.Messages.TriggerCIBody,
-			downstreamBranch, upstreamBranch)
+
+		tmplData := triggerCIMessageData{
+			ReleaseBranch: downstreamBranch,
+			MainBranch:    upstreamBranch,
+		}
+
+		t, err := template.New("resyncTriggerCIBody").Parse(r.Config.Messages.TriggerCIBody)
+		if err != nil {
+			r.Printf("Error parsing TriggerCIBody message template for resync: %v. Using raw template string.", err)
+			return r.createPR(title, fmt.Sprintf(r.Config.Messages.TriggerCIBody, downstreamBranch, upstreamBranch), downstreamBranch, syncBranch)
+		}
+
+		var buf bytes.Buffer
+		if err := t.Execute(&buf, tmplData); err != nil {
+			r.Printf("Error executing TriggerCIBody message template for resync: %v. Using raw template string.", err)
+			return r.createPR(title, fmt.Sprintf(r.Config.Messages.TriggerCIBody, downstreamBranch, upstreamBranch), downstreamBranch, syncBranch)
+		}
+		body := buf.String()
+
 		return r.createPR(title, body, downstreamBranch, syncBranch)
 	}
 }
