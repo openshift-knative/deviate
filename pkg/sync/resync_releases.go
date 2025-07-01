@@ -10,7 +10,7 @@ import (
 )
 
 func (o Operation) resyncReleases(excluded []release) error {
-	if !o.Config.ResyncReleases.Enabled {
+	if !o.Enabled {
 		return nil
 	}
 	releases, err := o.listReleases(true)
@@ -18,7 +18,7 @@ func (o Operation) resyncReleases(excluded []release) error {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
 	releases = filterOutExcluded(releases, excluded)
-	idx := len(releases) - o.Config.ResyncReleases.NumberOf
+	idx := len(releases) - o.NumberOf
 	if idx > 0 {
 		releases = releases[idx:]
 	}
@@ -49,23 +49,23 @@ type resyncRelease struct {
 }
 
 func (r resyncRelease) run() error {
-	upstreamBranch, err := r.rel.Name(r.Config.ReleaseTemplates.Upstream)
+	upstreamBranch, err := r.rel.Name(r.ReleaseTemplates.Upstream)
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
-	downstreamBranch, err := r.rel.Name(r.Config.ReleaseTemplates.Downstream)
+	downstreamBranch, err := r.rel.Name(r.ReleaseTemplates.Downstream)
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
-	syncBranch := r.Config.Branches.CheckPrPrefix + downstreamBranch
+	syncBranch := r.CheckPrPrefix + downstreamBranch
 	r.Printf("Re-syncing release: %s\n", color.Blue(r.rel.String()))
 	downstreamRemote := git.Remote{
 		Name: "downstream",
-		URL:  r.Config.Downstream,
+		URL:  r.Downstream,
 	}
 	upstreamRemote := git.Remote{
 		Name: "upstream",
-		URL:  r.Config.Upstream,
+		URL:  r.Upstream,
 	}
 	return runSteps([]step{
 		r.checkoutAs(downstreamRemote, downstreamBranch, syncBranch),
@@ -87,10 +87,10 @@ func (r resyncRelease) checkoutAs(remote git.Remote, targetBranch, branch string
 func (r resyncRelease) mergeUpstream(upstreamBranch, syncBranch string, onChanges []step) step {
 	upstream := git.Remote{
 		Name: "upstream",
-		URL:  r.Config.Upstream,
+		URL:  r.Upstream,
 	}
 	return func() error {
-		err := r.Repository.Merge(&upstream, upstreamBranch)
+		err := r.Merge(&upstream, upstreamBranch)
 		defer func() {
 			_ = r.deleteBranch(syncBranch)
 		}()
@@ -106,10 +106,10 @@ func (r resyncRelease) mergeUpstream(upstreamBranch, syncBranch string, onChange
 func (r resyncRelease) createSyncReleasePR(downstreamBranch, upstreamBranch, syncBranch string) step {
 	return func() error {
 		title := fmt.Sprintf(
-			r.Config.Messages.TriggerCI,
+			r.TriggerCI,
 			downstreamBranch, upstreamBranch)
 		body := fmt.Sprintf(
-			r.Config.Messages.TriggerCIBody,
+			r.TriggerCIBody,
 			downstreamBranch, upstreamBranch)
 		return r.createPR(title, body, downstreamBranch, syncBranch)
 	}
@@ -120,7 +120,7 @@ func (r resyncRelease) deleteBranch(branch string) error {
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
-	err = r.Repository.DeleteBranch(branch)
+	err = r.DeleteBranch(branch)
 	return errors.Wrap(err, ErrSyncFailed)
 }
 

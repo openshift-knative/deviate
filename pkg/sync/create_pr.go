@@ -11,10 +11,10 @@ import (
 )
 
 func (o Operation) createSyncReleaseNextPR() error {
-	branches := o.Config.Branches
+	branches := o.Branches
 	return o.createPR(
 		o.triggerCIMessage(),
-		fmt.Sprintf(o.Config.Messages.TriggerCIBody, branches.ReleaseNext, branches.Main),
+		fmt.Sprintf(o.TriggerCIBody, branches.ReleaseNext, branches.Main),
 		branches.ReleaseNext,
 		branches.CheckPrPrefix+branches.ReleaseNext,
 	)
@@ -59,12 +59,12 @@ func (c createPR) active() (*string, error) {
 		"--search", c.title,
 		"--json", "url",
 	}
-	for _, label := range c.Config.SyncLabels {
+	for _, label := range c.SyncLabels {
 		args = append(args, "--label", label)
 	}
 	cl := github.NewClient(args...)
 	cl.DisableColor = true
-	cl.ProjectDir = c.Project.Path
+	cl.ProjectDir = c.Path
 	buff, err := cl.Execute(c.Context)
 	if err != nil {
 		return nil, errors.Wrap(err, ErrSyncFailed)
@@ -95,18 +95,18 @@ func (c createPR) open() error {
 		"--base", c.base,
 		"--head", c.head,
 	}
-	for _, label := range c.Config.SyncLabels {
+	for _, label := range c.SyncLabels {
 		args = append(args, "--label", label)
 	}
 	cl := github.NewClient(args...)
-	cl.ProjectDir = c.Project.Path
+	cl.ProjectDir = c.Path
 	buff, err := cl.Execute(c.Context)
 	defer c.Println("Github client:", buff)
 	return errors.Wrap(err, ErrSyncFailed)
 }
 
 func (c createPR) repository() (string, error) {
-	addr, err := git.ParseAddress(c.Config.Downstream)
+	addr, err := git.ParseAddress(c.Downstream)
 	if err != nil {
 		return "", errors.Wrap(err, ErrSyncFailed)
 	}

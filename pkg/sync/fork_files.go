@@ -17,8 +17,8 @@ func (o Operation) addForkFiles(rel release) step {
 
 func (o Operation) unpackForkOntoWorkspace() error {
 	o.Println("- Add fork's files")
-	upstream := git.Remote{Name: "upstream", URL: o.Config.Upstream}
+	upstream := git.Remote{Name: "upstream", URL: o.Upstream}
 	err := o.Repository.Checkout(upstream, o.Config.Branches.Main).
-		OntoWorkspace(o.Config.CopyFromMidstream)
+		OntoWorkspace(o.CopyFromMidstream)
 	return errors.Wrap(err, ErrSyncFailed)
 }

@@ -17,9 +17,9 @@ func (o Operation) triggerCI() error {
 
 func (o Operation) triggerCIMessage() string {
 	return fmt.Sprintf(
-		o.Config.Messages.TriggerCI,
-		o.Config.Branches.ReleaseNext,
-		o.Config.Branches.Main)
+		o.TriggerCI,
+		o.ReleaseNext,
+		o.Main)
 }
 
 type triggerCI struct {
@@ -29,7 +29,7 @@ type triggerCI struct {
 func (c triggerCI) run() error {
 	c.Println("Trigger CI")
 
-	if c.Config.Branches.SkipCheckPr {
+	if c.SkipCheckPr {
 		c.Println(color.Yellow("Skipping CI Check PRs trigger"))
 		return nil
 	}
@@ -38,22 +38,22 @@ func (c triggerCI) run() error {
 		c.checkout,
 		c.addChange,
 		c.commitChanges(c.triggerCIMessage()),
-		c.pushBranch(c.Config.Branches.CheckPrPrefix + c.Config.Branches.ReleaseNext),
+		c.pushBranch(c.CheckPrPrefix + c.ReleaseNext),
 	})
 }
 
 func (c triggerCI) checkout() error {
 	remote := git.Remote{
 		Name: "downstream",
-		URL:  c.Config.Downstream,
+		URL:  c.Downstream,
 	}
 	err := c.Repository.Checkout(remote, c.Config.Branches.ReleaseNext).
-		As(c.Config.Branches.CheckPrPrefix + c.Config.Branches.ReleaseNext)
+		As(c.CheckPrPrefix + c.ReleaseNext)
 	return errors.Wrap(err, ErrSyncFailed)
 }
 
 func (c triggerCI) addChange() error {
-	filePath := path.Join(c.Project.Path, "ci")
+	filePath := path.Join(c.Path, "ci")
 	content := time.Now().Format(time.RFC3339)
 	const fileReadableToOwnerPerm = 0o600
 	err := os.WriteFile(filePath, []byte(content), fileReadableToOwnerPerm)

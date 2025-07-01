@@ -31,13 +31,13 @@ func (o Operation) Run() error {
 }
 
 func (o Operation) switchToMain() error {
-	downstream := git.Remote{Name: "downstream", URL: o.Config.Downstream}
-	err := o.Repository.Fetch(downstream)
+	downstream := git.Remote{Name: "downstream", URL: o.Downstream}
+	err := o.Fetch(downstream)
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
 	return errors.Wrap(
-		o.Repository.Checkout(downstream, o.Config.Main).As(o.Config.Main),
+		o.Repository.Checkout(downstream, o.Config.Main).As(o.Main),
 		ErrSyncFailed,
 	)
 }
@@ -45,7 +45,7 @@ func (o Operation) switchToMain() error {
 func (o Operation) commitChanges(message string) step {
 	return func() error {
 		o.Println("- Committing changes:", message)
-		commit, err := o.Repository.CommitChanges(message)
+		commit, err := o.CommitChanges(message)
 		if err != nil {
 			if errors.Is(err, gitv5.NoErrAlreadyUpToDate) {
 				o.Println("-- No changes to commit")
@@ -62,7 +62,7 @@ func (o Operation) commitChanges(message string) step {
 }
 
 func (o Operation) syncTags() error {
-	refName := plumbing.NewTagReferenceName(o.Config.Tags.RefSpec)
+	refName := plumbing.NewTagReferenceName(o.RefSpec)
 	o.Println("- Syncing tags:", color.Blue(refName))
 	return publish(o.State, "tag synchronization", refName)
 }

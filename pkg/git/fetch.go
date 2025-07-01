@@ -14,7 +14,7 @@ func (r Repository) Fetch(remote git.Remote) error {
 	if err != nil {
 		return err
 	}
-	if err = r.Repository.FetchContext(r.Context, &gitv5.FetchOptions{
+	if err = r.FetchContext(r.Context, &gitv5.FetchOptions{
 		RemoteName: remote.Name,
 		Auth:       auth,
 	}); !errors.Is(err, gitv5.NoErrAlreadyUpToDate) {

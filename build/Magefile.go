@@ -32,7 +32,7 @@ func init() { //nolint:gochecknoinits
 			Resolver: git.NewVersionResolver(),
 		},
 		Artifacts: []config.Artifact{bin},
-		Checks:    []config.Task{checks.GolangCiLint(withVersion("v1.57.2"))},
+		Checks:    []config.Task{checks.GolangCiLint(withVersion("v2.0.2"))},
 	})
 }
 

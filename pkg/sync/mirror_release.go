@@ -22,7 +22,7 @@ func (o Operation) mirrorRelease(rel release) error {
 
 func (o Operation) createNewRelease(rel release) step {
 	o.Printf("- Creating new release: %s\n", color.Blue(rel.String()))
-	upstream := git.Remote{Name: "upstream", URL: o.Config.Upstream}
+	upstream := git.Remote{Name: "upstream", URL: o.Upstream}
 	cnr := createNewRelease{State: o.State, rel: rel, remote: upstream}
 	return cnr.step
 }
@@ -30,7 +30,7 @@ func (o Operation) createNewRelease(rel release) step {
 func (o Operation) pushRelease(rel release) step {
 	return func() error {
 		o.Printf("- Publishing release: %s\n", color.Blue(rel.String()))
-		branch, err := rel.Name(o.Config.ReleaseTemplates.Downstream)
+		branch, err := rel.Name(o.ReleaseTemplates.Downstream)
 		if err != nil {
 			return errors.Wrap(err, ErrSyncFailed)
 		}
@@ -46,11 +46,11 @@ type createNewRelease struct {
 }
 
 func (r createNewRelease) step() error {
-	upstreamBranch, err := r.rel.Name(r.Config.ReleaseTemplates.Upstream)
+	upstreamBranch, err := r.rel.Name(r.ReleaseTemplates.Upstream)
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
-	downstreamBranch, err := r.rel.Name(r.Config.ReleaseTemplates.Downstream)
+	downstreamBranch, err := r.rel.Name(r.ReleaseTemplates.Downstream)
 	if err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}
@@ -61,7 +61,7 @@ func (r createNewRelease) step() error {
 }
 
 func (r createNewRelease) fetch() error {
-	return errors.Wrap(r.Repository.Fetch(r.remote), ErrSyncFailed)
+	return errors.Wrap(r.Fetch(r.remote), ErrSyncFailed)
 }
 
 func (r createNewRelease) checkoutAsNewRelease(upstreamBranch, downstreamBranch string) step {
@@ -90,18 +90,18 @@ func (p push) push() error {
 }
 
 func (p push) delete() error {
-	return errors.Wrap(p.Repository.DeleteBranch(p.branch), ErrSyncFailed)
+	return errors.Wrap(p.DeleteBranch(p.branch), ErrSyncFailed)
 }
 
 func publish(state state.State, title string, refName plumbing.ReferenceName) error {
-	if state.Config.DryRun {
-		state.Logger.Println(color.Yellow(fmt.Sprintf(
+	if state.DryRun {
+		state.Println(color.Yellow(fmt.Sprintf(
 			"- Skipping %s, because of dry run", title)))
 		return nil
 	}
 	remote := git.Remote{
 		Name: "downstream",
-		URL:  state.Config.Downstream,
+		URL:  state.Downstream,
 	}
-	return errors.Wrap(state.Repository.Push(remote, refName), ErrSyncFailed)
+	return errors.Wrap(state.Push(remote, refName), ErrSyncFailed)
 }

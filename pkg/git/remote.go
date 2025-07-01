@@ -40,7 +40,7 @@ func (r Repository) Remote(name string) (string, error) {
 func (r Repository) ensureRemote(remote git.Remote) error {
 	_, err := r.Repository.Remote(remote.Name)
 	if errors.Is(err, gitv5.ErrRemoteNotFound) {
-		_, err = r.Repository.CreateRemote(&config.RemoteConfig{
+		_, err = r.CreateRemote(&config.RemoteConfig{
 			Name: remote.Name,
 			URLs: []string{remote.URL},
 		})

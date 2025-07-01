@@ -19,7 +19,7 @@ func (l LabeledLogger) Printf(format string, v ...interface{}) {
 func prependText(text string, v []interface{}) []interface{} {
 	vars := make([]interface{}, len(v)+1)
 	vars[0] = text
-	for i := 0; i < len(v); i++ {
+	for i := range v {
 		vars[i+1] = v[i]
 	}
 	return vars
