@@ -14,7 +14,7 @@ func (o Operation) createSyncReleaseNextPR() error {
 	branches := o.Config.Branches
 	return o.createPR(
 		o.triggerCIMessage(),
-		fmt.Sprintf(o.Config.Messages.TriggerCIBody, branches.ReleaseNext, branches.Main),
+		o.triggerCIBody(),
 		branches.ReleaseNext,
 		branches.CheckPrPrefix+branches.ReleaseNext,
 	)
