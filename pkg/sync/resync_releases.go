@@ -71,6 +71,8 @@ func (r resyncRelease) run() error {
 		r.checkoutAs(downstreamRemote, downstreamBranch, syncBranch),
 		r.mergeUpstream(upstreamBranch, syncBranch, []step{
 			r.checkoutAs(upstreamRemote, upstreamBranch, syncBranch),
+			r.generateImages(r.rel),
+			r.commitChanges(r.ImagesGenerated),
 			r.pushBranch(syncBranch),
 			r.createSyncReleasePR(downstreamBranch, upstreamBranch, syncBranch),
 		}),
