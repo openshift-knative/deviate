@@ -12,7 +12,7 @@ func (o Operation) resetReleaseNext() error {
 		Name: "upstream",
 		URL:  o.Upstream,
 	}
-	if err := o.Repository.Checkout(remote, o.Config.Branches.Main).
+	if err := o.Repository.Checkout(remote, o.Main).
 		As(o.ReleaseNext); err != nil {
 		return errors.Wrap(err, ErrSyncFailed)
 	}

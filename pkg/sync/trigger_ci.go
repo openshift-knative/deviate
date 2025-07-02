@@ -47,7 +47,7 @@ func (c triggerCI) checkout() error {
 		Name: "downstream",
 		URL:  c.Downstream,
 	}
-	err := c.Repository.Checkout(remote, c.Config.Branches.ReleaseNext).
+	err := c.Repository.Checkout(remote, c.ReleaseNext).
 		As(c.CheckPrPrefix + c.ReleaseNext)
 	return errors.Wrap(err, ErrSyncFailed)
 }
