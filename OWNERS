@@ -3,7 +3,6 @@
 approvers:
 - dsimansk
 - cardil
-- pierDipi
 - creydr
 - maschmid
 - openshift-cherrypick-robot
@@ -11,8 +10,9 @@ approvers:
 reviewers:
 - dsimansk
 - cardil
-- pierDipi
 - creydr
 - maschmid
 - mvinkler
 - jrangelramos
+- rudyredhat1
+- Kaustubh-pande
