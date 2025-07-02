@@ -37,7 +37,7 @@ func newDefaults(project Project) Config {
 			RefSpec: "v*",
 		},
 		ResyncReleases: ResyncReleases{
-			NumberOf: 6, //nolint:mnd,gomnd
+			NumberOf: 6, //nolint:mnd
 		},
 		Messages: Messages{
 			TriggerCI: ":robot: Synchronize branch `%s` to " +

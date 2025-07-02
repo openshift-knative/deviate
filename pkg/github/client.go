@@ -27,19 +27,24 @@ type Client struct {
 }
 
 // Execute a Github client CLI command.
-func (c Client) Execute(ctx context.Context) ([]byte, error) {
+func (c Client) Execute(ctx context.Context) (bytes []byte, err error) {
 	buildVersion := metadata.Version
 	cmdFactory := factory.New(buildVersion)
-	cmd, err := ghroot.NewCmdRoot(cmdFactory, buildVersion, "-")
-	if err != nil {
-		return nil, errors.Wrap(err, ErrClientFailed)
+	cmd, gerr := ghroot.NewCmdRoot(cmdFactory, buildVersion, "-")
+	if gerr != nil {
+		err = errors.Join(err, errors.Wrap(gerr, ErrClientFailed))
+		return bytes, err
 	}
 	cmd.SetArgs(c.Args)
 	tmpf, terr := os.CreateTemp("", "gh-")
 	if terr != nil {
-		return nil, errors.Wrap(terr, ErrClientFailed)
+		err = errors.Join(err, errors.Wrap(terr, ErrClientFailed))
+		return bytes, err
 	}
-	defer os.Remove(tmpf.Name())
+	defer func() {
+		rmerr := os.Remove(tmpf.Name())
+		err = errors.Join(err, errors.Wrap(rmerr, ErrClientFailed))
+	}()
 	cmdFactory.IOStreams.Out = tmpf
 	cmdFactory.IOStreams.ErrOut = os.Stderr
 	if c.DisableColor {
@@ -55,10 +60,10 @@ func (c Client) Execute(ctx context.Context) ([]byte, error) {
 				ErrClientFailed)
 		}
 	}
-	err = runner()
+	err = errors.Join(err, runner())
 	bytes, ferr := os.ReadFile(tmpf.Name())
 	if ferr != nil {
-		return nil, errors.Wrap(ferr, ErrClientFailed)
+		err = errors.Join(err, errors.Wrap(ferr, ErrClientFailed))
 	}
-	return bytes, errors.Wrap(err, ErrClientFailed)
+	return bytes, err
 }

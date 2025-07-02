@@ -25,3 +25,9 @@ func Is(err, target error) bool {
 func New(text string) error {
 	return errors.New(text) //nolint:err113
 }
+
+// Join returns an error that wraps the given errors.
+// Any nil error values are discarded.
+func Join(err ...error) error {
+	return errors.Join(err...)
+}

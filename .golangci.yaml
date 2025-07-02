@@ -16,6 +16,7 @@ linters:
     - paralleltest
     - varnamelen
     - wsl
+    - nonamedreturns
   settings:
     wrapcheck:
       ignore-package-globs:
