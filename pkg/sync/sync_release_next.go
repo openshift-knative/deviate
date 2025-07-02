@@ -5,7 +5,7 @@ func (o Operation) syncReleaseNext() error {
 		o.resetReleaseNext,
 		o.addForkFiles(nextRelease{}),
 		o.applyPatches,
-		o.pushBranch(o.Config.Branches.ReleaseNext),
+		o.pushBranch(o.ReleaseNext),
 	})
 }
 

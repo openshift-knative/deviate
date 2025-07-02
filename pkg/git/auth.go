@@ -11,7 +11,8 @@ import (
 
 func authentication(remote git.Remote) (ssh.AuthMethod, error) { //nolint:ireturn
 	if url.IsHTTP(remote.URL) {
-		return nil, nil
+		// The auth isn't required for getting HTTP remote from GH
+		return nil, nil //nolint:nilnil
 	}
 	if sshagent.Available() {
 		user := ""

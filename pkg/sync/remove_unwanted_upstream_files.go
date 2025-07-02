@@ -8,6 +8,6 @@ func (o Operation) removeUnwantedUpstreamFiles() error {
 	o.Println("- Remove unwanted upstream files")
 
 	return errors.Wrap(
-		o.Config.DeleteFromUpstream.DeleteFiles(o.State.Project.Path),
+		o.DeleteFromUpstream.DeleteFiles(o.Path),
 		ErrSyncFailed)
 }

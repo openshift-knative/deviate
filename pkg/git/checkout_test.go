@@ -1,7 +1,6 @@
 package git_test
 
 import (
-	"context"
 	"slices"
 	"testing"
 
@@ -45,7 +44,7 @@ func TestCheckout_OntoWorkspace(t *testing.T) {
 		Branch: plumbing.NewBranchReferenceName("target"),
 	}))
 	repo := &git.Repository{
-		Context: context.TODO(),
+		Context: t.Context(),
 		Project: config.Project{
 			Path: projectPath,
 		},

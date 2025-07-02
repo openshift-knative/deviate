@@ -33,13 +33,13 @@ func (r Repository) Merge(remote *git.Remote, branch string) error {
 		targetBranch = fmt.Sprintf("%s/%s", remote.Name, branch)
 	}
 	// TODO: Consider rewriting this to Go native code.
-	err = pkgfiles.WithinDirectory(r.Project.Path, func() error {
+	err = pkgfiles.WithinDirectory(r.Path, func() error {
 		return errors.Wrap(sh.Run("git", "merge", "--commit",
 			"--quiet", "--log", "-m", "Merge "+targetBranch, targetBranch),
 			ErrRemoteOperationFailed)
 	})
 	if err != nil {
-		_ = pkgfiles.WithinDirectory(r.Project.Path, func() error {
+		_ = pkgfiles.WithinDirectory(r.Path, func() error {
 			return sh.Run("git", "merge", "--abort")
 		})
 		return errors.Wrap(err, ErrRemoteOperationFailed)

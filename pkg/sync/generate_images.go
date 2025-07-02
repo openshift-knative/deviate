@@ -12,7 +12,7 @@ import (
 
 func (o Operation) generateImages(rel release) step {
 	return func() error {
-		params := o.Config.DockerfileGen
+		params := o.DockerfileGen
 		if params.Skip {
 			o.Println("- Skipping image generation")
 			return nil

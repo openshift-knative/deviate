@@ -105,14 +105,14 @@ func (o Operation) findMissingDownstreamReleases() ([]release, error) {
 }
 
 func (o Operation) listReleases(upstream bool) ([]release, error) {
-	url := o.Config.Downstream
-	re := regexp.MustCompile(o.Config.Branches.Searches.DownstreamReleases)
+	url := o.Downstream
+	re := regexp.MustCompile(o.DownstreamReleases)
 	if upstream {
-		url = o.Config.Upstream
-		re = regexp.MustCompile(o.Config.Branches.Searches.UpstreamReleases)
+		url = o.Upstream
+		re = regexp.MustCompile(o.UpstreamReleases)
 	}
 
-	refs, err := o.Repository.ListRemote(git.Remote{Name: "origin", URL: url})
+	refs, err := o.ListRemote(git.Remote{Name: "origin", URL: url})
 	if err != nil {
 		return nil, errors.Wrap(err, ErrSyncFailed)
 	}

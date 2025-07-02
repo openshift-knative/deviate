@@ -8,7 +8,7 @@ import (
 )
 
 func (r Repository) CommitChanges(message string) (*object.Commit, error) {
-	wt, err := r.Repository.Worktree()
+	wt, err := r.Worktree()
 	if err != nil {
 		return nil, errors.Wrap(err, ErrLocalOperationFailed)
 	}
