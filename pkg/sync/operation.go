@@ -42,7 +42,7 @@ func (o Operation) switchToMain() error {
 	)
 }
 
-func (o Operation) commitChanges(message string) step {
+func (o Operation) commitChanges(message string, onCommit ...step) step {
 	return func() error {
 		o.Println("- Committing changes:", message)
 		commit, err := o.CommitChanges(message)
@@ -57,7 +57,14 @@ func (o Operation) commitChanges(message string) step {
 		if err == nil {
 			o.Printf("-- Statistics:\n%s\n", stats)
 		}
-		return errors.Wrap(err, ErrSyncFailed)
+		err = errors.Wrap(err, ErrSyncFailed)
+		for _, st := range onCommit {
+			if serr := st(); serr != nil {
+				err = errors.Join(err, serr)
+				break
+			}
+		}
+		return err
 	}
 }
 

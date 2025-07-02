@@ -67,15 +67,29 @@ func (r resyncRelease) run() error {
 		Name: "upstream",
 		URL:  r.Upstream,
 	}
+	changes := false
+	changesDetected := func() error {
+		changes = true
+		return nil
+	}
 	return runSteps([]step{
 		r.checkoutAs(downstreamRemote, downstreamBranch, syncBranch),
 		r.mergeUpstream(upstreamBranch, syncBranch, []step{
 			r.checkoutAs(upstreamRemote, upstreamBranch, syncBranch),
-			r.generateImages(r.rel),
-			r.commitChanges(r.ImagesGenerated),
-			r.pushBranch(syncBranch),
-			r.createSyncReleasePR(downstreamBranch, upstreamBranch, syncBranch),
+			changesDetected,
 		}),
+		r.checkoutAs(upstreamRemote, upstreamBranch, syncBranch),
+		r.generateImages(r.rel),
+		r.commitChanges(r.ImagesGenerated, changesDetected),
+		func() error {
+			if !changes {
+				return nil
+			}
+			return multiStep{
+				r.pushBranch(syncBranch),
+				r.createSyncReleasePR(downstreamBranch, upstreamBranch, syncBranch),
+			}.runSteps()
+		},
 	})
 }
 
