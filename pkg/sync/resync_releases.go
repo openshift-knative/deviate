@@ -78,17 +78,20 @@ func (r resyncRelease) run() error {
 			r.checkoutAs(upstreamRemote, upstreamBranch, syncBranch),
 			changesDetected,
 		}),
-		r.checkoutAs(upstreamRemote, upstreamBranch, syncBranch),
 		r.generateImages(r.rel),
 		r.commitChanges(r.ImagesGenerated, changesDetected),
-		func() error {
+		func() (err error) {
+			defer func() {
+				err = errors.Join(err, r.deleteBranch(syncBranch))
+			}()
 			if !changes {
 				return nil
 			}
-			return multiStep{
+			err = multiStep{
 				r.pushBranch(syncBranch),
 				r.createSyncReleasePR(downstreamBranch, upstreamBranch, syncBranch),
 			}.runSteps()
+			return
 		},
 	})
 }
@@ -107,9 +110,6 @@ func (r resyncRelease) mergeUpstream(upstreamBranch, syncBranch string, onChange
 	}
 	return func() error {
 		err := r.Merge(&upstream, upstreamBranch)
-		defer func() {
-			_ = r.deleteBranch(syncBranch)
-		}()
 		if errors.Is(err, gitv5.NoErrAlreadyUpToDate) {
 			r.Println("- no changes detected")
 			return nil
