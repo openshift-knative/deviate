@@ -101,7 +101,7 @@ func (c createPR) open() error {
 	cl := github.NewClient(args...)
 	cl.ProjectDir = c.Path
 	buff, err := cl.Execute(c.Context)
-	defer c.Println("Github client:", buff)
+	defer c.Println("Github client:", string(buff))
 	return errors.Wrap(err, ErrSyncFailed)
 }
 

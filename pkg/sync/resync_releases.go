@@ -88,7 +88,7 @@ func (r resyncRelease) run() error {
 				return nil
 			}
 			err = multiStep{
-				r.pushBranch(syncBranch),
+				r.pushBranch(syncBranch, skipDeleteOnPush),
 				r.createSyncReleasePR(downstreamBranch, upstreamBranch, syncBranch),
 			}.runSteps()
 			return

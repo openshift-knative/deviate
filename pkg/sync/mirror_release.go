@@ -74,14 +74,16 @@ func (r createNewRelease) checkoutAsNewRelease(upstreamBranch, downstreamBranch 
 
 type push struct {
 	state.State
-	branch string
+	branch     string
+	skipDelete bool
 }
 
 func (p push) steps() []step {
-	return []step{
-		p.push,
-		p.delete,
+	st := []step{p.push}
+	if !p.skipDelete {
+		st = append(st, p.delete)
 	}
+	return st
 }
 
 func (p push) push() error {

@@ -15,10 +15,10 @@ type sync struct {
 
 func (s sync) command() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:       "sync",
+		Use:       "sync [project-dir]",
 		Short:     "Synchronize to the upstream releases",
 		ValidArgs: []string{"REPOSITORY"},
-		Args:      cobra.OnlyValidArgs,
+		Args:      cobra.MaximumNArgs(1),
 		RunE:      s.run,
 	}
 	return cmd
@@ -35,15 +35,15 @@ func (s sync) project(args []string) func() config.Project {
 		if err != nil {
 			wd = "/"
 		}
+		if len(args) > 0 {
+			wd = args[0]
+		}
 		if !path.IsAbs(configPath) {
 			configPath = path.Join(wd, configPath)
 		}
 		project := config.Project{
 			ConfigPath: configPath,
 			Path:       wd,
-		}
-		if len(args) > 0 {
-			project.Path = args[0]
 		}
 		return project
 	}

@@ -9,11 +9,20 @@ func (o Operation) syncReleaseNext() error {
 	})
 }
 
-func (o Operation) pushBranch(branch string) step {
+type pushOpt func(*push)
+
+func skipDeleteOnPush(p *push) {
+	p.skipDelete = true
+}
+
+func (o Operation) pushBranch(branch string, opts ...pushOpt) step {
 	return func() error {
 		p := push{
 			State:  o.State,
 			branch: branch,
+		}
+		for _, opt := range opts {
+			opt(&p)
 		}
 		return runSteps(p.steps())
 	}
