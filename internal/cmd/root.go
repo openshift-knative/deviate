@@ -23,6 +23,9 @@ func (a App) Command() *cobra.Command {
 	}
 	cmd.SetOut(os.Stdout)
 	cmd.SetErr(os.Stderr)
+	cmd.PersistentPreRun = func(cmd *cobra.Command, _ []string) {
+		cmd.SilenceUsage = true
+	}
 	opts := &cli.Options{}
 	subs := []subcommand{
 		sync{opts},
