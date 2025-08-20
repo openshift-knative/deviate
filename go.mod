@@ -11,7 +11,7 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/openshift-knative/hack v0.0.0-20250618150100-d994c424036c
+	github.com/openshift-knative/hack v0.0.0-20250819151224-8ed35461fe80
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	github.com/wavesoftware/go-commandline v1.3.0
